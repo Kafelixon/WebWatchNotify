@@ -54,7 +54,7 @@ class Config:
         bot_token (str): The bot token for Telegram bot integration.
         read_bot_token (str): The read-only bot token for Telegram bot integration.
         chat_id (str): The chat ID where the bot should send messages.
-        schedule_interval (str): The scheduling interval (e.g., '1' for every minute, '60' for hourly).
+        schedule_interval (str): The scheduling interval (e.g., '1' for every minute).
     """
 
     name: str
@@ -181,7 +181,13 @@ class WebsiteFileWatcher:
         """
         Read the last message from a Telegram chat.
         """
-        url = f"https://api.telegram.org/bot{config.read_bot_token}/getUpdates?chat_id={config.chat_id}"
+        url = (
+            "https://api.telegram.org/bot"
+            + config.read_bot_token
+            + "/getUpdates"
+            + "?chat_id="
+            + config.chat_id
+        )
 
         response = requests.get(url, timeout=10)
         if response.status_code != 200:
@@ -217,8 +223,9 @@ class WebsiteFileWatcher:
         """
         print("Scheduler started")
         for config in self.config:
-            schedule.every(int(config.schedule_interval)).minutes.do(self.scrape_websites)  # type: ignore # external library
-
+            schedule.every(int(config.schedule_interval)).minutes.do(  # type: ignore # external lib
+                self.scrape_websites
+            )
         try:
             while True:
                 schedule.run_pending()
